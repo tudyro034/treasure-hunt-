@@ -1,1 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Treasure Hunt Game</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    #game {
+      position: relative;
+      width: 600px;
+      height: 400px;
+      background: url('https://i.imgur.com/w6b1jtp.jpg') center/cover no-repeat;
+      border: 4px solid #333;
+      border-radius: 10px;
+      cursor: crosshair;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #message {
+      margin-top: 15px;
+      font-size: 1.2em;
+      color: #333;
+    }
+
+    #clicks {
+      margin-top: 5px;
+      font-weight: bold;
+    }
+
+    #resetBtn {
+      margin-top: 15px;
+      background: #ff6f61;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: background 0.2s;
+    }
+
+    #resetBtn:hover {
+      background: #e65b50;
+    }
+
+    #marker {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background-color: rgba(255, 0, 0, 0.7);
+      border: 2px solid white;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      display: none;
+    }
+
+    #treasure {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: gold;
+      border-radius: 50%;
+      border: 2px solid #333;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    footer {
+      margin-top: 30px;
+      font-size: 0.9em;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>🏴‍☠️ Treasure Hunt 🪙</h1>
+  <div id="game">
+    <div id="marker"></div>
+    <div id="treasure"></div>
+  </div>
+  <div id="message">Click anywhere on the map to start hunting!</div>
+  <div id="clicks"></div>
+  <button id="resetBtn">Reset Game</button>
+
+  <footer>Made by Luca 👨‍💻</footer>
+
+  <script>
+    const game = document.getElementById("game");
+    const message = document.getElementById("message");
+    const clicksDisplay = document.getElementById("clicks");
+    const marker = document.getElementById("marker");
+    const treasure = document.getElementById("treasure");
+    const resetBtn = document.getElementById("resetBtn");
+
+    let width = game.clientWidth;
+    let height = game.clientHeight;
+    let treasureX, treasureY, clicks;
+
+    function randomCoordinate(max) {
+      return Math.floor(Math.random() * max);
+    }
+
+    function distance(x1, y1, x2, y2) {
+      const dx = x1 - x2;
+      const dy = y1 - y2;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function getHint(dist) {
+      if (dist < 20) return "🔥 You're on fire! The treasure is right here!";
+      if (dist < 50) return "💎 Very hot!";
+      if (dist < 100) return "🔥 Hot!";
+      if (dist < 200) return "🌤️ Warm.";
+      if (dist < 300) return "🌬️ Cold.";
+      return "❄️ Very cold...";
+    }
+
+    function setTreasure() {
+      treasureX = randomCoordinate(width);
+      treasureY = randomCoordinate(height);
+      treasure.style.left = treasureX + "px";
+      treasure.style.top = treasureY + "px";
+    }
+
+    function resetGame() {
+      clicks = 0;
+      setTreasure();
+      message.textContent = "Click anywhere on the map to start hunting!";
+      clicksDisplay.textContent = "";
+      marker.style.display = "none";
+      treasure.style.display = "none";
+    }
+
+    game.addEventListener("click", function (e) {
+      const rect = game.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      clicks++;
+
+      const dist = distance(x, y, treasureX, treasureY);
+      const hint = getHint(dist);
+      message.textContent = hint;
+      clicksDisplay.textContent = `Clicks: ${clicks}`;
+
+      marker.style.left = x + "px";
+      marker.style.top = y + "px";
+      marker.style.display = "block";
+
+      if (dist < 20) {
+        treasure.style.display = "block";
+        message.textContent = `🏆 You found the treasure in ${clicks} clicks!`;
+      }
+    });
+
+    resetBtn.addEventListener("click", resetGame);
+
+    // Initialize the game
+    resetGame();
+  </script>
+</body>
+</html>
